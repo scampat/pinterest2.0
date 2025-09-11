@@ -11,7 +11,6 @@ import (
 	discovery "pinterest2.0/pkg/registry"
 )
 
-// Modelo de Pin
 type Pin struct {
 	ID      string `json:"id"`
 	UserID  string `json:"user_id"`
@@ -20,7 +19,6 @@ type Pin struct {
 	URL     string `json:"url"`
 }
 
-// Gateway que conecta boards → pins
 type Gateway struct {
 	registry discovery.Registry
 }
@@ -29,7 +27,6 @@ func New(registry discovery.Registry) *Gateway {
 	return &Gateway{registry}
 }
 
-// GetPinsByBoard obtiene todos los pins de un board
 func (g *Gateway) GetPinsByBoard(ctx context.Context, boardID string) ([]Pin, error) {
 	addrs, err := g.registry.ServiceAddress(ctx, "pins")
 	if err != nil {

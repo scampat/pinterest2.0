@@ -9,7 +9,6 @@ import (
 	"pinterest2.0/boards/pkg/model"
 )
 
-// Gateway para comunicar boards → pins
 type pinsGateway interface {
 	GetPinsByBoard(ctx context.Context, boardID string) ([]pins.Pin, error)
 }
@@ -24,14 +23,12 @@ func New(pinsGateway pinsGateway) *Controller {
 	return &Controller{pinsGateway}
 }
 
-// Crear un board nuevo
 func (c *Controller) CreateBoard(id, userID, name string) model.Board {
 	b := model.Board{ID: id, UserID: userID, Name: name}
 	boards[id] = b
 	return b
 }
 
-// Obtener boards de un usuario
 func (c *Controller) GetBoardsByUser(userID string) ([]model.Board, error) {
 	var userBoards []model.Board
 	for _, b := range boards {
@@ -45,12 +42,10 @@ func (c *Controller) GetBoardsByUser(userID string) ([]model.Board, error) {
 	return userBoards, nil
 }
 
-// Obtener los pins dentro de un board
 func (c *Controller) GetBoardPins(ctx context.Context, boardID string) ([]pins.Pin, error) {
 	return c.pinsGateway.GetPinsByBoard(ctx, boardID)
 }
 
-// Obtener un board específico
 func (c *Controller) GetBoard(id string) (model.Board, error) {
 	b, ok := boards[id]
 	if !ok {

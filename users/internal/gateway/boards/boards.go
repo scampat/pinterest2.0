@@ -27,7 +27,6 @@ func New(registry discovery.Registry) *Gateway {
 }
 
 func (g *Gateway) GetBoardsByUser(ctx context.Context, userID string) ([]Board, error) {
-	// Pedimos al registry las direcciones de boards
 	addrs, err := g.registry.ServiceAddress(ctx, "boards")
 	if err != nil {
 		return nil, err
