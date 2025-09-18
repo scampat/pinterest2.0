@@ -19,7 +19,11 @@ func NewHandler(ctrl *user.Controller) *Handler {
 
 func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/users", h.handleUsers)
+	mux.HandleFunc("/users/boards", h.getUserBoards)
+	mux.HandleFunc("/users/pins", h.getUserPins)
 }
+
+// ---- USERS ----
 
 func (h *Handler) handleUsers(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
@@ -60,4 +64,42 @@ func (h *Handler) getUser(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(u.ToResponse())
+}
+
+// ---- INTEGRACIÓN CON BOARDS ----
+
+func (h *Handler) getUserBoards(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		http.Error(w, "missing user_id", http.StatusBadRequest)
+		return
+	}
+
+	boards, err := h.ctrl.GetUserBoards(r.Context(), userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(boards)
+}
+
+// ---- INTEGRACIÓN CON PINS ----
+
+func (h *Handler) getUserPins(w http.ResponseWriter, r *http.Request) {
+	userID := r.URL.Query().Get("user_id")
+	if userID == "" {
+		http.Error(w, "missing user_id", http.StatusBadRequest)
+		return
+	}
+
+	pins, err := h.ctrl.GetUserPins(r.Context(), userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pins)
 }
