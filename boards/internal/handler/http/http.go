@@ -21,14 +21,14 @@ func (h *Handler) CreateBoard(w http.ResponseWriter, req *http.Request) {
 	var input struct {
 		ID     string `json:"id"`
 		UserID string `json:"user_id"`
-		Name   string `json:"name"`
+		Title  string `json:"title"`
 	}
 	if err := json.NewDecoder(req.Body).Decode(&input); err != nil {
 		http.Error(w, "invalid request", http.StatusBadRequest)
 		return
 	}
 
-	b := h.ctrl.CreateBoard(input.ID, input.UserID, input.Name)
+	b := h.ctrl.CreateBoard(input.ID, input.UserID, input.Title)
 	if err := json.NewEncoder(w).Encode(b); err != nil {
 		log.Printf("Response encode error: %v\n", err)
 	}

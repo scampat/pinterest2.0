@@ -2,6 +2,7 @@ package http
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -21,6 +22,36 @@ func (h *Handler) RegisterRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("/users", h.handleUsers)
 	mux.HandleFunc("/users/boards", h.getUserBoards)
 	mux.HandleFunc("/users/pins", h.getUserPins)
+	mux.HandleFunc("/health", h.healthCheck)
+}
+
+// Endpoint que consulta boards y pins
+func (h *Handler) healthCheck(w http.ResponseWriter, r *http.Request) {
+	boardsResp, err := http.Get("http://localhost:8002/boards")
+	if err != nil {
+		http.Error(w, "boards service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	defer boardsResp.Body.Close()
+
+	pinsResp, err := http.Get("http://localhost:8000/pins")
+	if err != nil {
+		http.Error(w, "pins service unavailable", http.StatusServiceUnavailable)
+		return
+	}
+	defer pinsResp.Body.Close()
+
+	boardsData, _ := ioutil.ReadAll(boardsResp.Body)
+	pinsData, _ := ioutil.ReadAll(pinsResp.Body)
+
+	resp := map[string]string{
+		"users":  "ok",
+		"boards": string(boardsData),
+		"pins":   string(pinsData),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
 }
 
 // ---- USERS ----
